@@ -1,0 +1,19 @@
+{
+  "name": "tcb-server-sdk",
+  "version": "1.0.2",
+  "description": "tcb server sdk",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["微信小程序云开发", "云函数路由"],
+  "author": "showms",
+  "license": "ISC",
+  "dependencies": {
+    "wx-server-sdk": "^2.5.3"
+  },
+  "files": [
+    "lib",
+    "index.js"
+  ]
+}
