@@ -4,6 +4,7 @@ const response = require('./lib/response');
 "use strict";
 
 class RouteHolder {
+    #backLocation = "../../";
     #fixPrefix
 
     /**
@@ -23,12 +24,48 @@ class RouteHolder {
      */
     async process(event) {
         const {uri, params} = event;
+        const {path, method} = await this._analyzeUri(uri, false);
+        const module = require(path);
+        const instance = module.getInstance(event);
+        return await instance[method](params);
+    }
+
+    /**
+     * 解析uri得到module_path以及将要执行的method
+     * @param uri
+     * @param secondTry 二次尝试，第一次解析如果没有找到module会拼接上index再次尝试解析一次
+     * @returns {Promise<{path: string, method: any[]}>}
+     * @private
+     */
+    async _analyzeUri(uri, secondTry) {
         const parts = uri.split("/");
+        if (secondTry) {
+            parts.push("index");
+        }
         const method = parts.splice(-1, 1);
-        const handler = parts.splice(-1, 1);
+        const clazz = parts.splice(-1, 1);
         const midPath = parts.join("/") + (parts.length ? "/" : "");
-        const target = require("../../" + this.#fixPrefix + midPath + handler);
-        return await target.getInstance(event)[method](params);
+        const path = this.#backLocation + this.#fixPrefix + midPath + clazz;
+        if (!await this._moduleAvailable(path) && !secondTry) {
+            return await this._analyzeUri(uri, true);
+        }
+        return {path, method};
+
+    }
+
+    /**
+     * 判断模块是否存在
+     * @param path
+     * @returns {Promise<boolean>}
+     * @private
+     */
+    async _moduleAvailable(path) {
+        try {
+            require.resolve(path);
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 }
 
@@ -77,6 +114,28 @@ class RouteBase {
         this.instance = new this(event);
         //console.log("重置用户上下文、入参信息，当前用户信息：", JSON.stringify(this.instance.wxContext));
         return this.instance;
+    }
+
+    /**
+     * 调用云函数
+     * @param name
+     * @param data
+     * @returns {Promise<unknown>}
+     */
+    callCloudFunction(name, data) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                const result = await this.cloud.callFunction({
+                    // 要调用的云函数名称
+                    name,
+                    // 传递给云函数的参数
+                    data
+                });
+                resolve(result);
+            } catch (e) {
+                reject(e);
+            }
+        });
     }
 }
 

@@ -8,7 +8,11 @@
 
 - 被路由的处理类要求继承RouteBase
 - 云函数入口使用RouteHolder初始化路由对象，允许指定固定前缀
-- RouteBase会自动使用wx-server-sdk初始化
+- RouteBase会自动使用wx-server-sdk初始化云环境
+
+##### 其中：
+
+- RouteBase还会初始化一些云函数所需的操作对象
 
 
 
@@ -56,6 +60,11 @@ exports.main = async (event, context) => {
 const route = require("./tcb-server-sdk");
 
 class Name extends route.RouteBase {
+    async index(params) {
+    	console.log("这个是index方法：", params);
+        return {};
+    }
+    
     async get(params) {
         console.log("接口请求参数：", params);
         //这里的this.wxContext来自RouteBase
@@ -77,16 +86,17 @@ wx.cloud.callFunction({
     name: "routeTest",
     // 传给云函数的参数
     data: {
-        env: "test",// 环境可以不填
-        uri: "user/Name/get",// 请求URL，云函数端的RouteHolder会找到对应的处理类并调用指定方法
+        env: "test",// 环境可以不填，不填就使用当前环境  
+        uri: "user/Name/get",//请求URI，云函数端的RouteHolder会找到对应的处理类并调用指定方法。这里会调用Name类的get方法
+        //uri: "user/Name",//这种方式会默认调用Name类的index方法
         params: {"source":"1"}
     }
 }).then(res => {
-    
+
 }).catch(res => {
-    
+
 }).then(res => {
-    
+
 });
 ```
 
