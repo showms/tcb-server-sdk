@@ -1,4 +1,4 @@
-const cloud = require("wx-server-sdk");
+const cloud = require("wx-server-inherit-sdk");
 const response = require('./lib/response');
 
 "use strict";
@@ -98,7 +98,7 @@ class RouteBase {
         this._ = this.db.command;
         //数据库聚合操作，具体见云开发API
         this.$ = this.db.command.aggregate;
-        //用户上下文
+        //用户上下文，注意：从1.1.0版本开始云开发环境共享场景下APPID/OPENID会被替换成源方，非共享场景不变
         this.wxContext = cloud.getWXContext();
         //响应封装类
         this.response = response;

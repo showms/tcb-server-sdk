@@ -1,16 +1,20 @@
 {
   "name": "tcb-server-sdk",
-  "version": "1.0.8",
+  "version": "1.1.1",
   "description": "云开发云函数轻量级类路由库，主要用于优化服务端函数处理逻辑",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["微信小程序云开发", "云函数路由", "微信"],
+  "keywords": [
+    "微信小程序云开发",
+    "云函数路由",
+    "微信"
+  ],
   "author": "showms",
   "license": "ISC",
   "dependencies": {
-    "wx-server-sdk": "^2.5.3"
+    "wx-server-inherit-sdk": "^1.0.5"
   },
   "files": [
     "lib",
