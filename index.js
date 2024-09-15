@@ -20,13 +20,14 @@ class RouteHolder {
      * @param event 云函数event参数 包含两部分内容uri和params
      *              uri格式：user/Name/get
      *              params：表示接口入参，可以是字符串也可以是json格式
+     * @param context 调用信息和运行状态，可以用它来了解服务运行的情况
      * @returns {Promise<*>}
      */
-    async process(event) {
+    async process(event, context) {
         const {uri, params} = event;
         const {path, method} = await this._analyzeUri(uri, false);
         const module = require(path);
-        const instance = module.getInstance(event);
+        const instance = module.getInstance(event, context);
         return await instance[method](params);
     }
 
@@ -82,8 +83,9 @@ class RouteBase {
     wxContext;
     response;
     event;
+    context;
 
-    constructor(event = {}) {
+    constructor(event = {}, context ={}) {
         const {env} = event;
         cloud.init({
             //允许外部指定云开发环境
@@ -103,15 +105,17 @@ class RouteBase {
         //响应封装类
         this.response = response;
         this.event = event;
+        this.context = context;
     }
 
     /**
      * 获取实例
      * @param event
+     * @param context
      * @returns {*}
      */
-    static getInstance(event = {}) {
-        this.instance = new this(event);
+    static getInstance(event = {}, context ={}) {
+        this.instance = new this(event, context);
         //console.log("重置用户上下文、入参信息，当前用户信息：", JSON.stringify(this.instance.wxContext));
         return this.instance;
     }
